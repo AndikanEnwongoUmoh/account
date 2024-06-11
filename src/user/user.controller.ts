@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UsePipes, ValidationPipe, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Response } from 'express';
@@ -16,6 +16,21 @@ export class UserController {
   @Post('login')
   Signin(@Body() payload: CreateUserDto, @Res() res: Response) {
     return this.userService.login(payload, res);
+  }
+
+  @Put('block/:id')
+  blockUser(@Param('id') id: string, @Res () res:Response) {
+    return this.userService.blockUser(id, res);
+  }
+
+  @Put('unblock/:id')
+  unblockUser(@Param('id') id: string, @Res () res:Response) {
+    return this.userService.unblockUser(id, res);
+  }
+
+  @Post('logout')
+  logout(@Res() res: Response) {
+    return this.userService.logout(res);
   }
 
   @Get()

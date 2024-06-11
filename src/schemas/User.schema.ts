@@ -8,8 +8,17 @@ export class User{
     @Prop({required: true})
     password: string;
 
-    @Prop()
+    @Prop({required: true, unique: true})
     email: string;
+
+    @Prop({default: false})
+    isBlocked: boolean
+
+    @Prop()
+    resetToken: string
+
+    @Prop()
+    resetTokenExpires: Date
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)

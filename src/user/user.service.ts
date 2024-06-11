@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Res } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, Res } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserSchema } from 'src/schemas/User.schema';
@@ -40,7 +40,11 @@ async Signup(payload: CreateUserDto){
   if(!user){
     throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED)
   }
-  console.log(user);
+  
+
+  if(user.isBlocked){
+    throw new HttpException('User is blocked', HttpStatus.UNAUTHORIZED)
+  }
 
   const match= await bcrypt.compare(password, user.password)
   if(!match){
@@ -59,12 +63,46 @@ async Signup(payload: CreateUserDto){
   })
 
  }
+async blockUser(id: string, @Res() res: Response){
+  const user = await this.usermodel.findById(id);
+        
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+  
+  user.isBlocked = true;
+
+  await user.save();
+
+  return res.send({ message: 'User Blocked' });
+
+}
+
+async unblockUser(id: string, @Res () res: Response){
+  const user = await this.usermodel.findById(id);
+        
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+  
+  user.isBlocked = false;
+
+  await user.save();
+
+  return res.send({ message: 'User Unblocked' });
+}
+
+async logout(@Res() res: Response){
+  res.clearCookie('jwt')
+  return res.send({message: 'success'})
+}
+
   async getAll(){
     return await this.usermodel.find()
   }
 
   async getOne(id: string){
-    const user = await this.usermodel.findOne({id: id})
+    const user = await this.usermodel.findById({id})
     if(!user)
     throw new HttpException('user not found', 400)
     return user
