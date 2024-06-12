@@ -1,26 +1,25 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { CreateForgotPasswordDto } from './dto/create-forgot_password.dto';
-import { UpdateForgotPasswordDto } from './dto/update-forgot_password.dto';
+import { UserService } from 'src/user/user.service';
+import {v4 as uuidv4} from 'uuid'
 
 @Injectable()
 export class ForgotPasswordService {
-  create(createForgotPasswordDto: CreateForgotPasswordDto) {
-    return 'This action adds a new forgotPassword';
+constructor(
+  private readonly userService: UserService,
+  private readonly mailerService: MailerService,
+){}
+
+async requestPasswordReset(email: string): Promise<void> {
+  const user = await this.userService.findByEmail(email)
+  if(!user){
+    throw new Error('User not found');
   }
 
-  findAll() {
-    return `This action returns all forgotPassword`;
-  }
+const resetToken = uuidv4();
+user.resetToken = resetToken;
+user.resetTokenExpires = new Date(Date.now() + 36000000)
 
-  findOne(id: number) {
-    return `This action returns a #${id} forgotPassword`;
-  }
-
-  update(id: number, updateForgotPasswordDto: UpdateForgotPasswordDto) {
-    return `This action updates a #${id} forgotPassword`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} forgotPassword`;
-  }
+await this.userService.(user)
+}
 }

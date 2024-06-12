@@ -42,4 +42,6 @@ export class UserController {
   async getOne(@Param('id') id: string){
     return await this.userService.getOne(id)
   }
+
+  
 }

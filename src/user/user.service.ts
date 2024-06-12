@@ -107,4 +107,9 @@ async logout(@Res() res: Response){
     throw new HttpException('user not found', 400)
     return user
   }
+
+  async findByEmail(email: string): Promise<User>{
+    return this.usermodel.findOne({email}).exec()
+  }
+  
 }
